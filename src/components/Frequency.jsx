@@ -41,13 +41,13 @@ function Frequency() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen bg-black text-white p-4 sm:p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center gap-3 mb-2">
-            <Star className="w-6 h-6 text-white fill-white" />
-            <h2 className="text-2xl font-bold text-white">Frequently Asked Questions</h2>
+        <div className="mb-8 sm:mb-12">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <Star className="w-5 h-5 sm:w-6 sm:h-6 text-white fill-white" />
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Frequently Asked Questions</h2>
           </div>
         </div>
 
@@ -57,9 +57,9 @@ function Frequency() {
             <div key={item.id} className="border-b border-gray-800 last:border-b-0">
               <button
                 onClick={() => toggleItem(item.id)}
-                className="w-full text-left py-6 flex items-center justify-between group hover:text-gray-300 transition-colors duration-200"
+                className="w-full text-left py-4 sm:py-6 flex items-center justify-between group hover:text-gray-300 transition-colors duration-200"
               >
-                <h3 className="text-lg font-medium pr-4">{item.question}</h3>
+                <h3 className="text-md sm:text-lg font-medium pr-4">{item.question}</h3>
                 <div className="flex-shrink-0">
                   {openItems.includes(item.id) ? (
                     <ChevronUp className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-200" />
@@ -70,8 +70,8 @@ function Frequency() {
               </button>
               
               {openItems.includes(item.id) && (
-                <div className="pb-6 pr-8">
-                  <div className="text-gray-300 leading-relaxed animate-fadeIn">
+                <div className="pb-4 sm:pb-6 pr-4 sm:pr-8">
+                  <div className="text-gray-300 text-sm sm:text-base leading-relaxed animate-fadeIn">
                     {item.answer}
                   </div>
                 </div>
