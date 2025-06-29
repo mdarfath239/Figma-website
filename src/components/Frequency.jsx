@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Star, ChevronDown, ChevronUp } from 'lucide-react';
 
 const faqData = [
@@ -30,7 +30,51 @@ const faqData = [
 ];
 
 function Frequency() {
-  const [openItems, setOpenItems] = useState([1]); // First item open by default
+  const [openItems, setOpenItems] = useState([1]);
+  const [visibleItems, setVisibleItems] = useState(new Set());
+  const itemRefs = useRef([]);
+  const headerRef = useRef(null);
+
+  // Intersection Observer for scroll triggers
+  useEffect(() => {
+    const observers = [];
+    
+    // Header observer
+    if (headerRef.current) {
+      const headerObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-slideInDown');
+          }
+        },
+        { threshold: 0.1, rootMargin: '50px' }
+      );
+      headerObserver.observe(headerRef.current);
+      observers.push(headerObserver);
+    }
+
+    // FAQ items observer
+    itemRefs.current.forEach((ref, index) => {
+      if (ref) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              setTimeout(() => {
+                setVisibleItems(prev => new Set([...prev, index]));
+              }, index * 150); // Stagger animation
+            }
+          },
+          { threshold: 0.1, rootMargin: '50px' }
+        );
+        observer.observe(ref);
+        observers.push(observer);
+      }
+    });
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, []);
 
   const toggleItem = (id) => {
     setOpenItems(prev => 
@@ -41,43 +85,145 @@ function Frequency() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 sm:p-6">
+    <div className="min-h-screen bg-black text-white p-4 sm:p-6 overflow-hidden">
+      <style jsx>{`
+        @keyframes slideInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        
+        .animate-slideInDown {
+          animation: slideInDown 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .animate-slideInUp {
+          animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .animate-pulse {
+          animation: pulse 2s infinite;
+        }
+        
+        .faq-item {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .faq-item.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        
+        .answer-content {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .answer-content.open {
+          max-height: 500px;
+        }
+        
+        .chevron-rotate {
+          transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .chevron-rotate.rotated {
+          transform: rotate(180deg);
+        }
+      `}</style>
+      
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8 sm:mb-12">
+        <div 
+          ref={headerRef}
+          className="mb-8 sm:mb-12 opacity-0"
+        >
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <Star className="w-5 h-5 sm:w-6 sm:h-6 text-white fill-white" />
-            <h2 className="text-xl sm:text-2xl font-bold text-white">Frequently Asked Questions</h2>
+            <Star className="w-5 h-5 sm:w-6 sm:h-6 text-white fill-white animate-pulse" />
+            <h2 className="text-xl sm:text-2xl font-bold text-white">
+              Frequently Asked Questions
+            </h2>
           </div>
         </div>
 
         {/* FAQ Items */}
         <div className="space-y-4">
-          {faqData.map((item) => (
-            <div key={item.id} className="border-b border-gray-800 last:border-b-0">
+          {faqData.map((item, index) => (
+            <div 
+              key={item.id}
+              ref={el => itemRefs.current[index] = el}
+              className={`faq-item border-b border-gray-800 last:border-b-0 ${
+                visibleItems.has(index) ? 'visible' : ''
+              }`}
+            >
               <button
                 onClick={() => toggleItem(item.id)}
-                className="w-full text-left py-4 sm:py-6 flex items-center justify-between group hover:text-gray-300 transition-colors duration-200"
+                className="w-full text-left py-4 sm:py-6 flex items-center justify-between group hover:text-gray-300 transition-all duration-300 hover:pl-2"
               >
-                <h3 className="text-md sm:text-lg font-medium pr-4">{item.question}</h3>
+                <h3 className="text-md sm:text-lg font-medium pr-4 transition-all duration-300">
+                  {item.question}
+                </h3>
                 <div className="flex-shrink-0">
-                  {openItems.includes(item.id) ? (
-                    <ChevronUp className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-200" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-200" />
-                  )}
+                  <ChevronDown className={`w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 chevron-rotate ${
+                    openItems.includes(item.id) ? 'rotated' : ''
+                  }`} />
                 </div>
               </button>
               
-              {openItems.includes(item.id) && (
+              <div className={`answer-content ${openItems.includes(item.id) ? 'open' : ''}`}>
                 <div className="pb-4 sm:pb-6 pr-4 sm:pr-8">
-                  <div className="text-gray-300 text-sm sm:text-base leading-relaxed animate-fadeIn">
+                  <div className="text-gray-300 text-sm sm:text-base leading-relaxed">
                     {item.answer}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           ))}
+        </div>
+        
+        {/* Scroll indicator */}
+        <div className="fixed bottom-8 right-8">
+          <div className="w-2 bg-gray-800 rounded-full h-20 relative">
+            <div 
+              className="w-2 bg-white rounded-full transition-all duration-300"
+              style={{
+                height: `${Math.min(100, (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100)}%`
+              }}
+            ></div>
+          </div>
         </div>
       </div>
     </div>

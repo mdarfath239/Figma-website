@@ -3,13 +3,14 @@ import Navbar from './components/Navbar';
 
 
 import Works from './components/Works';
-import Information from './components/Information';
+
 import Blog from './components/Blog';
-import Textimonial from './components/Textimonial';
+import Testimonial from './components/Testimonial';
 import Frequency from './components/Frequency';
 import Footer from './components/Footer';
 import Banner from './components/Banner';
 import Expertise from './components/Expertise';
+import Experience from './components/Experience';
 
 function App() {
   return (
@@ -18,9 +19,9 @@ function App() {
       <Banner/>
       <Expertise/>
       <Works/>
-      <Information/>
+    <Experience/>
       <Blog/>
-      <Textimonial/>
+      <Testimonial/>
       <Frequency/>
       <Footer/>
     </div>
