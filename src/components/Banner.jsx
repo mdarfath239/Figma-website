@@ -69,7 +69,7 @@ const Banner = () => {
           >
             <span>I AM A</span>
             <img
-              src="profile.jpg"
+              src="profile2.jpg"
               alt="freelancer"
               ref={addToImagesRef}
               className="h-10 w-20 sm:h-12 sm:w-24 md:h-16 md:w-32 rounded-full object-cover"
